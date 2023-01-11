@@ -8,7 +8,23 @@ _BOLD=$(tput bold)
 
 
 function addbasicauth () {
-        apt update && apt install apache2-utils pwgen -y
+        releaseinfo=$(lsb_release -a)
+        htpasswdexists=$(command -v htpasswd)
+        pwgenexists=$(command -v pwgen)
+        if [[ ! $releaseinfo =~ "ebian" || ! $releaseinfo =~ "untu" ]] && [[ -z $htpasswdexists || -z $pwgenexists ]]; then
+                echo "Please install pwgen and htpasswd (from apache2-utils) in order to generate passwords"
+                echo "Exiting..."
+                exit 0
+        fi
+
+        if [[ $releaseinfo =~ "ebian" || $releaseinfo =~ "untu" ]] && [[ -z $htpasswdexists && -z $pwgenexists ]]; then
+                apt update && apt install apache2-utils pwgen -y -qq > /dev/null
+        fi
+        if [[ ! $releaseinfo =~ "ebian" || ! $releaseinfo =~ "untu" ]] && [[ -z $htpasswdexists && -z $pwgenexists ]]; then
+                echo "Please install pwgen and htpasswd (from apache2-utils) in order to generate passwords"
+                echo "Exiting..."
+                exit 0
+        fi
         basicauthname=$servicename-basicauth
         if [[ -z $useenvpass || $useenvpass == "0" ]]; then
         basicauthpassword=$(pwgen 12 1)
@@ -67,3 +83,4 @@ fi
 if [[ $addbasicauth == 1 ]]; then
 echo "" && echo ""
 [[ $useenvpass == 0 || -z $useenvpass ]] && echo "Your Basic Auth Password is: ${_GREEN}${basicauthpassword}${_RESET}" || echo "Your Basic Auth password was set from your environment variables"
+fi
