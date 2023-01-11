@@ -29,12 +29,13 @@ function addbasicauth () {
         if [[ -z $useenvpass || $useenvpass == "0" ]]; then
         basicauthpassword=$(pwgen 12 1)
         fi
+        basicauthpassword=$basicauthpass
         basicauthrawstring=$(echo $(htpasswd -nbB $basicauthuser $basicauthpassword))
         basicauthstring=$(echo $basicauthrawstring | sed -e s/\\$/\\$\\$/g)
     
 cat <<EOF
-        - traefik.http.middlewares.$basicauthname.users=$basicauthstring
-        - traefik.http.routers.$servicename.middlewares=$basicauthname
+      - traefik.http.middlewares.$basicauthname.users=$basicauthstring
+      - traefik.http.routers.$servicename.middlewares=$basicauthname
 EOF
 }
 
