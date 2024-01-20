@@ -57,4 +57,5 @@ executeRemote() {
 checkArgs
 testPort
 executeRemote
+testPort
 
